@@ -1,0 +1,12 @@
+emu compiled at Oct 16 2026, 07:36:36
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is ../nexus-am/apps/vadd/build/vadd-riscv64-xs.bin
+vadd.vv test: SEW=8, LMUL=1, requested VL=2
+vadd_target PC: 00000000800001F8
+PASS: VL=2, result=4f 52 ff ff
+Core 0: [32mHIT GOOD TRAP at pc = 0x8000020e
+[0m[35mCore-0 instrCnt = 3746, cycleCnt = 14867, IPC = 0.251967
+[0m[34mSeed=0 Guest cycle spent: 14871 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 60744ms
+[0m
