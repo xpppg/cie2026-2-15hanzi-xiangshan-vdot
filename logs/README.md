@@ -21,7 +21,7 @@
 | LMUL=2，5 KiB | [scale-m2-difftest.log](scale-m2-difftest.log) | [scale-m2-results.log](scale-m2-results.log) | 512 个向量结果检查通过，加速 1.439 倍 |
 | LMUL=4，9 KiB | [scale-m4-difftest.log](scale-m4-difftest.log) | [scale-m4-results.log](scale-m4-results.log) | 512 个向量结果检查通过，加速 1.393 倍 |
 | LMUL=8，17 KiB | [scale-m8-difftest.log](scale-m8-difftest.log) | [scale-m8-results.log](scale-m8-results.log) | 512 个向量结果检查通过，加速 1.424 倍 |
-| LMUL=8，136 KiB | [scale-large-difftest.log](scale-large-difftest.log) | 运行中 | 尚未结束 |
+| LMUL=8，136 KiB | [scale-large-difftest.log](scale-large-difftest.log) | [scale-large-results.log](scale-large-results.log) | 4096 个向量结果检查通过，加速 1.468 倍 |
 
 各项性能测试均开启 NEMU 差分。测试方法及分析见 [协同仿真和性能分析文档](../协同仿真和性能分析文档.md)，原始周期样本和版本记录保存在 `stage3`。
 

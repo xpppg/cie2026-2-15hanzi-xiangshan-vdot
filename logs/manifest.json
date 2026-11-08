@@ -110,5 +110,13 @@
   "scale-large-build.log": {
     "source": "vdot-docs/logs/scale-large-build.log",
     "sha256": "751be4a3a476a6bf3ac10dda2f72bbf4febae51a1b81f9dc331cfe3a3a198963"
+  },
+  "scale-large-results.log": {
+    "source": "vdot-docs/logs/scale-large-results.log",
+    "sha256": "2e159c65c501a5922c1cf94ebd979becced39598446a10296df2f12a6d6fe800"
+  },
+  "scale-large-difftest.log": {
+    "source": "vdot-docs/logs/scale-large-difftest.log",
+    "sha256": "e53692aad1efaf2d21556785ccb8d8022de5074d71317fac1aa62f29b30e3e77"
   }
 }
