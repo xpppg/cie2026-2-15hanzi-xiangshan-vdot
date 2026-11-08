@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-11-08T20:18:26.321750+08:00",
+  "status": "passed",
+  "exit_code": 0,
+  "mode": "BASIC=1",
+  "difftest": true,
+  "checks": {
+    "positive": 1,
+    "negative": 1,
+    "boundary": 4,
+    "total": 6
+  },
+  "trap_pc": "0x80000830",
+  "rtl_modified_this_round": false,
+  "additional_tests_run": false,
+  "nemu_base": "2ec110b618bb8f08cf0b54ca3d9cbb0f210f895d",
+  "sha256": {
+    "NEMU/build/riscv64-nemu-interpreter-so": "35f5c633b96d56082e76c277de05801d463e0026dfd3af66645feb4a7217936d",
+    "NEMU/.config": "dc3e72425f171cefd0fb2c1cef49a9fa330d903cc35b20ff5973c255b93b7898",
+    "XiangShan/build/emu": "31075e80f84e7a3b0397ace0e6e41eb907a3e91bb06430ffdd0b1b37d6114749",
+    "nexus-am/apps/vdot-csr/build/vdot-basic-riscv64-xs.bin": "d943da83c8a0caae7a9e1b9f663a216e0bc76963909f243f14333194a7788c49",
+    "vdot-docs/patches/nemu-vdot.patch": "989c15aca835f39490d50eb29a9917355f4c0e0120872e398fc25fc5f828b9ed",
+    "vdot-docs/patches/xiangshan-vdot.patch": "5afa1c0ed55155f5e98a17c27d841c7bf5c366b6487c5949b9595d50f3f6d32d"
+  },
+  "log": "vdot-docs/logs/vdot-basic-difftest.log"
+}

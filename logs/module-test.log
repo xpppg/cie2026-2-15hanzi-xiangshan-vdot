@@ -1,0 +1,22 @@
+================= xiangshan.test.testOnly xiangshan.backend.fu.vector.VDotCsrTest ================
+==================================================================================================
+[773/773] xiangshan.test.testOnly
+[773] [32mVDotCsrTest:[0m
+[773] [32mXiangShan Module[0m
+[773] numBytes: 16, byteWidth: 4
+[773] elemIdxWidth: 8
+[773] clang++: warning: argument unused during compilation: '-dynamiclib' [-Wunused-command-line-argument]
+[773] [32m- should honor vl and LMUL, preserve vl=0, and retain ordinary multiplication[0m
+[773] ImmUnion max len: 22
+[773/773] =============== xiangshan.test.testOnly x...nd.fu.vector.VDotCsrTest =============== 60s
+[773] xiangshan.test.testOnly 56s
+==================================================================================================
+[773] clang++: warning: argument unused during compilation: '-dynamiclib' [-Wunused-command-line-argument]
+[773] [32m- should split LMUL groups safely and reject illegal alignment and state[0m
+[773] [36mRun completed in 1 minute, 47 seconds.[0m
+[773] [36mTotal number of tests run: 2[0m
+[773] [36mSuites: completed 1, aborted 0[0m
+[773] [36mTests: succeeded 2, failed 0, canceled 0, ignored 0, pending 0[0m
+[773] [32mAll tests passed.[0m
+[773/773] =============== xiangshan.test.testOnly ...nd.fu.vector.VDotCsrTest =============== 112s
+==================================================================================================

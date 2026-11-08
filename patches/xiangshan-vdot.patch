@@ -1,0 +1,285 @@
+diff --git a/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala b/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala
+index 5b1419eaa..622897107 100644
+--- a/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala
++++ b/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala
+@@ -1055,7 +1055,8 @@ class DecodeUnit(implicit p: Parameters) extends XSModule with DecodeUnitConstan
+   decodedInst.vpu.isNarrow := isNarrow
+   decodedInst.vpu.isDstMask := isDstMask
+   decodedInst.vpu.isOpMask := isOpMask
+-  decodedInst.vpu.isDependOldVd := isVppu || isVecOPF || isVStore || (isDstMask && !isOpMask) || isNarrow || isVlx || isVma || isFof || vstartIsNotZero
++  decodedInst.vpu.isDependOldVd := (decodedInst.uopSplitType === UopSplitType.VEC_DOT) ||
++    (isVppu || isVecOPF || isVStore || (isDstMask && !isOpMask) || isNarrow || isVlx || isVma || isFof || vstartIsNotZero)
+   decodedInst.vpu.isWritePartVd := isWritePartVd || isVlm || isVle && emulIsFrac
+   decodedInst.vpu.vstart := io.enq.vstart
+   decodedInst.vpu.isVleff := isFof && inst.NF === 0.U
+diff --git a/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala b/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala
+index 41368bfa4..f6bc87947 100644
+--- a/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala
++++ b/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala
+@@ -353,6 +353,19 @@ class DecodeUnitComp()(implicit p : Parameters) extends XSModule with DecodeUnit
+         csBundle(1).vpu.connectVType(io.vtypeBypass)
+       }
+     }
++    is(UopSplitType.VEC_DOT) {
++      // Keep architectural sources intact until the last chunk is consumed.
++      // Renaming chains the temporary partial sums through source 2.
++      for (i <- 0 until MAX_VLMUL) {
++        csBundle(i).lsrc(0) := src1 + i.U
++        csBundle(i).lsrc(1) := src2 + i.U
++        csBundle(i).srcType(2) := SrcType.vp
++        csBundle(i).lsrc(2) := (if (i == 0) dest else VECTOR_TMP_REG_LMUL.U)
++        csBundle(i).ldest := VECTOR_TMP_REG_LMUL.U
++        csBundle(i).uopIdx := i.U
++      }
++      csBundle(numOfUop - 1.U).ldest := dest
++    }
+     is(UopSplitType.VEC_VVV) {
+       for (i <- 0 until MAX_VLMUL) {
+         csBundle(i).lsrc(0) := src1 + i.U
+diff --git a/src/main/scala/xiangshan/backend/decode/Instructions.scala b/src/main/scala/xiangshan/backend/decode/Instructions.scala
+index 0b2f535ab..1cc12c152 100644
+--- a/src/main/scala/xiangshan/backend/decode/Instructions.scala
++++ b/src/main/scala/xiangshan/backend/decode/Instructions.scala
+@@ -2,6 +2,11 @@ package xiangshan.backend.decode
+ 
+ import chisel3.util._
+ 
++object VDotInstructions {
++  // custom-0, funct6=0, vm=1, funct3=0; vd/vs1/vs2 are vector registers.
++  def VDOT_VV = BitPat("b0000001??????????000?????0001011")
++}
++
+ object Zvbb {
+   def VANDN_VV = BitPat("b000001???????????000?????1010111")
+   def VANDN_VX = BitPat("b000001???????????100?????1010111")
+diff --git a/src/main/scala/xiangshan/backend/decode/UopInfoGen.scala b/src/main/scala/xiangshan/backend/decode/UopInfoGen.scala
+index aa1dc5de1..8be18edd6 100644
+--- a/src/main/scala/xiangshan/backend/decode/UopInfoGen.scala
++++ b/src/main/scala/xiangshan/backend/decode/UopInfoGen.scala
+@@ -199,6 +199,7 @@ class UopInfoGen (implicit p: Parameters) extends XSModule {
+     UopSplitType.VSET -> 2.U,
+     UopSplitType.VEC_0XV -> 2.U,
+     UopSplitType.VEC_VVV -> lmul,
++    UopSplitType.VEC_DOT -> lmul,
+     UopSplitType.VEC_VFV -> (lmul +& 1.U),
+     UopSplitType.VEC_EXT2 -> lmul,
+     UopSplitType.VEC_EXT4 -> lmul,
+@@ -280,4 +281,4 @@ class UopInfo(implicit p: Parameters) extends XSBundle {
+   val numOfUop = UInt(log2Up(MaxUopSize + 1).W)
+   val numOfWB = UInt(log2Up(MaxUopSize + 1).W)
+   val lmul = UInt(4.W)
+-}
+\ No newline at end of file
++}
+diff --git a/src/main/scala/xiangshan/backend/decode/VecDecoder.scala b/src/main/scala/xiangshan/backend/decode/VecDecoder.scala
+index 376419107..d82e9364d 100644
+--- a/src/main/scala/xiangshan/backend/decode/VecDecoder.scala
++++ b/src/main/scala/xiangshan/backend/decode/VecDecoder.scala
+@@ -186,6 +186,8 @@ case class VST(src2: BitPat, fuOp: BitPat, strided: Boolean = false, indexed: Bo
+ 
+ object VecDecoder extends DecodeConstants {
+   val opivv: Array[(BitPat, XSDecodeBase)] = Array(
++    VDotInstructions.VDOT_VV -> OPIVV(FuType.vimac, VimacType.vdot, T, F, F,
++      UopSplitType.VEC_DOT, src3 = SrcType.vp),
+     VADD_VV         -> OPIVV(FuType.vialuF, VialuFixType.vadd_vv, T, F, F),
+     VSUB_VV         -> OPIVV(FuType.vialuF, VialuFixType.vsub_vv, T, F, F),
+ 
+diff --git a/src/main/scala/xiangshan/backend/decode/VecExceptionGen.scala b/src/main/scala/xiangshan/backend/decode/VecExceptionGen.scala
+index b885c6876..add9033b3 100644
+--- a/src/main/scala/xiangshan/backend/decode/VecExceptionGen.scala
++++ b/src/main/scala/xiangshan/backend/decode/VecExceptionGen.scala
+@@ -52,6 +52,7 @@ class VecExceptionGen(implicit p: Parameters) extends XSModule{
+   private val inst: XSInstBitFields = io.inst.asTypeOf(new XSInstBitFields)
+   private val isVArithMem = FuType.isVArithMem(io.decodedInst.fuType)
+   private val isVArith = FuType.isVArith(io.decodedInst.fuType)
++  private val isVDot = io.decodedInst.uopSplitType === UopSplitType.VEC_DOT
+   private val isVset = FuType.isVset(io.decodedInst.fuType)
+ 
+   private val SEW = io.vtype.vsew(1, 0)
+@@ -242,7 +243,7 @@ class VecExceptionGen(implicit p: Parameters) extends XSModule{
+   private val vs2NotAlign = SrcType.isVp(io.decodedInst.srcType(1)) && RegNumNotAlign(inst.VS2, vs2Emul)
+ 
+   private val vdIsMask = lsMaskInst || acsbInst || cmpInst || maskArithmeticInst
+-  private val vdIsSingleElem = redInst || redWideningInst || vmvSingleInst
++  private val vdIsSingleElem = redInst || redWideningInst || vmvSingleInst || isVDot
+   private val vdEew = Mux(lsStrideInst, inst.WIDTH(1, 0), Mux(vdWideningInst || redWideningInst, SEW + 1.U, SEW))
+   private val vdEmulSel = Cat((vdIsMask || vdIsSingleElem), vdWideningInst, vmvWholeInst, lsWholeInst, lsStrideInst)
+   private val vdEmul = LookupTreeDefault(vdEmulSel, LMUL, List(
+@@ -273,6 +274,7 @@ class VecExceptionGen(implicit p: Parameters) extends XSModule{
+ 
+   // 8. vstart Illegal
+   private val vstartIllegal = isVArith && (io.vstart =/= 0.U)
++  private val vdotConfigIllegal = isVDot && (io.vtype.vsew =/= 0.U || io.vtype.vlmul === "b100".U || inst.VM === 0.U)
+ 
+   //vs1
+   private val vs1vdRegNotOverlap = vs1RegHi < vdRegLo || vdRegHi < vs1RegLo
+@@ -291,7 +293,7 @@ class VecExceptionGen(implicit p: Parameters) extends XSModule{
+ 
+   private val regOverlapIllegal = v0Overlap || vs1vdOverlap || vs2vdOverlap
+ 
+-  io.illegalInst := instIllegal || villIllegal || eewIllegal || emulIllegal || regNumIllegal || regOverlapIllegal || vstartIllegal
++  io.illegalInst := instIllegal || villIllegal || eewIllegal || emulIllegal || regNumIllegal || regOverlapIllegal || vstartIllegal || vdotConfigIllegal
+   dontTouch(instIllegal)
+   dontTouch(villIllegal)
+   dontTouch(eewIllegal)
+@@ -300,4 +302,4 @@ class VecExceptionGen(implicit p: Parameters) extends XSModule{
+   dontTouch(regOverlapIllegal)
+   dontTouch(notDependVtypeInst)
+   dontTouch(vstartIllegal)
+-}
+\ No newline at end of file
++}
+diff --git a/src/main/scala/xiangshan/backend/decode/isa/bitfield/RiscvInst.scala b/src/main/scala/xiangshan/backend/decode/isa/bitfield/RiscvInst.scala
+index c553020a4..b07d7f8fc 100644
+--- a/src/main/scala/xiangshan/backend/decode/isa/bitfield/RiscvInst.scala
++++ b/src/main/scala/xiangshan/backend/decode/isa/bitfield/RiscvInst.scala
+@@ -91,7 +91,8 @@ trait BitFieldsVec { this: Riscv32BitInst =>
+   }
+ 
+   def isVecArith = {
+-    this.OPCODE5Bit === xiangshan.backend.decode.isa.bitfield.OPCODE5Bit.OP_V
++    this.OPCODE5Bit === xiangshan.backend.decode.isa.bitfield.OPCODE5Bit.OP_V ||
++      xiangshan.backend.decode.VDotInstructions.VDOT_VV === this.ALL
+   }
+ 
+   def isOPIVV = {
+diff --git a/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala b/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+index 27eb8012e..8eafc8b14 100644
+--- a/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
++++ b/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+@@ -53,6 +53,7 @@ class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg
+   // io alias
+   private val opcode  = VimacType.getOpcode(fuOpType)
+   private val format  = VimacType.getFormat(fuOpType)
++  private val isDot   = VimacType.isDot(fuOpType)
+   private val widen   = format === VimacType.FMT.VVW
+   private val exchangeVs2Vd = VimacOpcode.overWriteMultiplicand(opcode)
+ 
+@@ -107,8 +108,8 @@ class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg
+       mod.io.info.vstart := vstart
+       mod.io.info.uopIdx := vuopIdx
+       mod.io.info.vxrm   := vxrm
+-      mod.io.srcType(0)  := typeMod.io.out.vs2Type
+-      mod.io.srcType(1)  := typeMod.io.out.vs1Type
++      mod.io.srcType(0)  := Mux(isDot, Cat(0.U(1.W), true.B, VSew.e8), typeMod.io.out.vs2Type)
++      mod.io.srcType(1)  := Mux(isDot, Cat(0.U(1.W), true.B, VSew.e8), typeMod.io.out.vs1Type)
+       mod.io.vdType      := typeMod.io.out.vdType
+       mod.io.vs1         := vs1VecUsed(i)
+       mod.io.vs2         := Mux(!exchangeVs2Vd, vs2VecUsed(i), oldVdVecUsed(i))
+@@ -145,7 +146,33 @@ class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg
+   mgu.io.in.info.dstMask := 0.B
+   mgu.io.in.isIndexedVls := false.B
+ 
+-  io.out.bits.res.data := mgu.io.out.vd
+-  io.out.bits.res.vxsat.get := (outVxsat & mgu.io.out.active).orR
+-  io.out.bits.ctrl.exceptionVec.get(ExceptionNO.illegalInstr) := mgu.io.out.illegal
++  // Each uop consumes one source register from each LMUL group. Both 64-bit
++  // multipliers contribute complete signed e8 products. Apply vl before
++  // reduction; fractional LMUL needs no special case because vl <= VLMAX.
++  private val dotElementsPerUop = dataWidth / 8
++  private val dotChunkBase = outVecCtrl.vuopIdx * dotElementsPerUop.U
++  private val dotProducts = vimacs.zipWithIndex.flatMap { case (mod, bank) =>
++    (0 until 8).map { i =>
++      val product = mod.io.fullResult(16 * i + 15, 16 * i).asSInt
++      Mux(dotChunkBase +& (bank * 8 + i).U < outVl, product, 0.S(16.W))
++    }
++  }
++  private def dotReduce(products: Seq[SInt]): SInt = {
++    if (products.size == 1) products.head
++    else dotReduce(products.grouped(2).map(pair => pair(0) +& pair(1)).toSeq)
++  }
++  private val dotPartial = dotReduce(dotProducts).pad(32).asUInt
++  // The first uop starts at zero; subsequent uops consume a renamed temporary.
++  private val dotSeed = Mux(outVecCtrl.vuopIdx === 0.U, 0.U(32.W), outOldVd(31, 0))
++  private val dotSum = (dotSeed + dotPartial)(31, 0)
++  private val dotResult = Mux(outVl === 0.U, outOldVd,
++    Cat(0.U((dataWidth - 32).W), dotSum))
++  private val outIsDot = VimacType.isDot(outCtrl.fuOpType)
++  private val dotIllegal = outVecCtrl.vill || outVecCtrl.vsew =/= VSew.e8 ||
++    outVecCtrl.vlmul === "b100".U || outVstart =/= 0.U || !outVm
++
++  io.out.bits.res.data := Mux(outIsDot, dotResult, mgu.io.out.vd)
++  // A zero saturation event leaves the architectural sticky vxsat unchanged.
++  io.out.bits.res.vxsat.get := Mux(outIsDot, false.B, (outVxsat & mgu.io.out.active).orR)
++  io.out.bits.ctrl.exceptionVec.get(ExceptionNO.illegalInstr) := Mux(outIsDot, dotIllegal, mgu.io.out.illegal)
+ }
+diff --git a/src/main/scala/xiangshan/package.scala b/src/main/scala/xiangshan/package.scala
+index f4694b831..b4e4e490a 100644
+--- a/src/main/scala/xiangshan/package.scala
++++ b/src/main/scala/xiangshan/package.scala
+@@ -786,6 +786,7 @@ package object xiangshan {
+     def VEC_FSLIDE1DOWN  = "b100011".U // vfslide1down.vf
+     def VEC_VRED         = "b100100".U // VEC_VRED
+     def VEC_SLIDEUP      = "b100101".U // VEC_SLIDEUP
++    def VEC_DOT          = "b100110".U // fixed-size dot product, one uop
+     def VEC_SLIDEDOWN    = "b100111".U // VEC_SLIDEDOWN
+     def VEC_M0X          = "b101001".U // VEC_M0X  0MV
+     def VEC_MVV          = "b101010".U // VEC_MVV  VMV
+diff --git a/yunsuan/src/main/scala/yunsuan/encoding/Opcode/VimacOpcode.scala b/yunsuan/src/main/scala/yunsuan/encoding/Opcode/VimacOpcode.scala
+index d188aa4..07c8a99 100644
+--- a/yunsuan/src/main/scala/yunsuan/encoding/Opcode/VimacOpcode.scala
++++ b/yunsuan/src/main/scala/yunsuan/encoding/Opcode/VimacOpcode.scala
+@@ -11,6 +11,7 @@ object VimacOpcode {
+   def vmadd   = "b100".U(width.W)
+   def vnmsub  = "b101".U(width.W)
+   def vsmul   = "b110".U(width.W)
++  def vdot    = "b111".U(width.W)
+ 
+   def highHalf(opcode: UInt) = Seq(vmulh).map(_ === opcode).reduce(_ || _)
+ 
+diff --git a/yunsuan/src/main/scala/yunsuan/package.scala b/yunsuan/src/main/scala/yunsuan/package.scala
+index 069366b..101285f 100644
+--- a/yunsuan/src/main/scala/yunsuan/package.scala
++++ b/yunsuan/src/main/scala/yunsuan/package.scala
+@@ -382,6 +382,7 @@ package object yunsuan {
+     def dummy              = BitPat.Y(OpTypeWidth) // exu not implemented
+     //                                  pad       vs2   vs1  vd_old format   opcode
+     def vmul               = LiteralCat(0.U(2.W), INT.S, INT.S, INT.X, FMT.VVV, VimacOpcode.vmul)   // "b00_110_0_000".U(OpTypeWidth.W) // vmul    vmul.vv/vmul.vx
++    def vdot               = LiteralCat(0.U(2.W), INT.S, INT.S, INT.X, FMT.VVV, VimacOpcode.vdot)
+     def vwmul              = LiteralCat(0.U(2.W), INT.S, INT.S, INT.X, FMT.VVW, VimacOpcode.vmul)   // "b00_110_1_000".U(OpTypeWidth.W) // vmul    vwmul.vv/vwmul.vx
+     def vwmulu             = LiteralCat(0.U(2.W), INT.U, INT.U, INT.X, FMT.VVW, VimacOpcode.vmul)   // "b00_000_1_000".U(OpTypeWidth.W) // vmul    vwmulu.vv/vwmulu.vx
+     def vwmulsu            = LiteralCat(0.U(2.W), INT.S, INT.U, INT.X, FMT.VVW, VimacOpcode.vmul)   // "b00_100_1_000".U(OpTypeWidth.W) // vmul    vwmulsu.vv/vwmulsu.vx
+@@ -399,6 +400,7 @@ package object yunsuan {
+     def vsmul              = LiteralCat(0.U(2.W), INT.S, INT.S, INT.X, FMT.VVV, VimacOpcode.vsmul)  // "b00_110_0_110".U(OpTypeWidth.W) // vsmul   vsmul.vv/vsmul.vx
+ 
+     def getOpcode(fuOpType: UInt) : UInt = fuOpType(2, 0)
++    def isDot(fuOpType: UInt): Bool = fuOpType === vdot
+     def getFormat(fuOpType: UInt) : UInt = fuOpType(3)
+ 
+     def vs2Sign(fuOpType: UInt) = fuOpType(6)
+@@ -607,4 +609,4 @@ object VfcvtType {
+     def fnmacc  = "b0010".U(width.W)
+     def fnmsac  = "b0100".U(width.W)
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/yunsuan/src/main/scala/yunsuan/vector/vectorIMAC/VIMac64b.scala b/yunsuan/src/main/scala/yunsuan/vector/vectorIMAC/VIMac64b.scala
+index 16864ed..af96ceb 100644
+--- a/yunsuan/src/main/scala/yunsuan/vector/vectorIMAC/VIMac64b.scala
++++ b/yunsuan/src/main/scala/yunsuan/vector/vectorIMAC/VIMac64b.scala
+@@ -26,6 +26,9 @@ class VIMac64b extends Module {
+     val isFixP = Input(Bool())
+ 
+     val vd = Output(UInt(64.W))
++    // Complete per-element results before high/low-half selection. In signed
++    // e8 multiply mode this contains all eight 16-bit products for vdot.
++    val fullResult = Output(UInt(128.W))
+     val vxsat = Output(UInt(8.W))
+   })
+ 
+@@ -206,6 +209,7 @@ class VIMac64b extends Module {
+    */
+   val walOut = Wire(UInt(128.W))
+   walOut := RegEnable(sum_wo.asUInt, fireS1)
++  io.fullResult := walOut
+   val sewS2 = RegEnable(sewS1, fireS1)
+   val highHalfS2 = RegEnable(highHalfS1, fireS1)
+   val widenS2 = RegEnable(widenS1, fireS1)
+@@ -293,4 +297,4 @@ class VIMac64b extends Module {
+ 
+   io.vd := Mux(isFixPS2, vdFixP.asUInt, Mux(isSubS2, VecInit(adderChainOut).asUInt, vdS2))
+   io.vxsat := Mux(isFixPS2, vxsat, 0.U)
+-}
+\ No newline at end of file
++}

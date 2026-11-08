@@ -1,0 +1,38 @@
+{
+  "recorded_at_utc": "2026-11-08T11:53:43.894439+00:00",
+  "status": "stopped_by_user",
+  "difftest": false,
+  "confirmed": {
+    "positive": 1,
+    "negative": 1,
+    "boundary": 4,
+    "vimac_cases": 62,
+    "interleaved_results": 6,
+    "vadd": 1,
+    "module_tests": 2
+  },
+  "incomplete": {
+    "additional_whole_core_checks": 206,
+    "extended_suite": 2249
+  },
+  "sha256": {
+    "XiangShan/build/emu": "31075e80f84e7a3b0397ace0e6e41eb907a3e91bb06430ffdd0b1b37d6114749",
+    "vdot-docs/patches/xiangshan-vdot.patch": "5afa1c0ed55155f5e98a17c27d841c7bf5c366b6487c5949b9595d50f3f6d32d",
+    "nexus-am/apps/vdot-csr/build/vdot-csr-riscv64-xs.bin": "386e798e0f7d07e8e792466ab86b043fe916f498fc4123825666628e1afd0fbf",
+    "nexus-am/apps/vimac-vdot-regress/build/vimac-vdot-regress-riscv64-xs.bin": "eeaa78c797cf80138478ea418d09d7b8d8c17c2c633ea3aee4a046ebcf169335",
+    "nexus-am/apps/vadd/build/vadd-riscv64-xs.bin": "6f6183d09b3536cf4104d5ab1e7b3a968f333a856354ee3373b37f69906a0709"
+  },
+  "logs": {
+    "vdot-csr": "vdot-docs/logs/vdot-csr.log",
+    "vimac-vdot-regress": "vdot-docs/logs/vimac-regression.log",
+    "vadd": "vdot-docs/logs/vadd.log",
+    "module": "vdot-docs/logs/module-test.log",
+    "build": "vdot-docs/logs/emu-build.log"
+  },
+  "source_logs": {
+    "vdot-csr": "nexus-am/apps/vdot-csr/build/rtl-test.log",
+    "vimac-vdot-regress": "nexus-am/apps/vimac-vdot-regress/build/csr-rtl-test.log",
+    "vadd": "nexus-am/apps/vadd/build/csr-rtl-test.log",
+    "module": "XiangShan/build/vdot-csr/test-verilator-rerun.log"
+  }
+}

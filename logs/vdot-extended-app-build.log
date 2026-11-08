@@ -1,0 +1,19 @@
+make: Entering directory '/home/xpg/cie/xs-env/nexus-am/apps/vdot-csr'
+# Building vdot-csr-extended [riscv64-xs] with AM_HOME {/home/xpg/cie/xs-env/nexus-am}
++ CC main.c
++ AS-RVV vdot.S
+make[1]: Entering directory '/home/xpg/cie/xs-env/nexus-am'
+make[2]: Entering directory '/home/xpg/cie/xs-env/nexus-am/am'
+# Building lib-am [riscv64-xs]
++ AS src/nemu/common/mainargs.S
++ AR -> build/am-riscv64-xs.a
+make[2]: Leaving directory '/home/xpg/cie/xs-env/nexus-am/am'
+make[1]: Leaving directory '/home/xpg/cie/xs-env/nexus-am'
+make[1]: Entering directory '/home/xpg/cie/xs-env/nexus-am/libs/klib'
+# Building lib-klib [riscv64-xs]
+make[1]: Leaving directory '/home/xpg/cie/xs-env/nexus-am/libs/klib'
+# Creating binary image [riscv64-xs]
++ LD -> build/vdot-csr-extended-riscv64-xs.elf
++ OBJCOPY -> build/vdot-csr-extended-riscv64-xs.bin
+/usr/local/llvm/bin/llvm-objdump -d /home/xpg/cie/xs-env/nexus-am/apps/vdot-csr/build/vdot-csr-extended-riscv64-xs.elf > /home/xpg/cie/xs-env/nexus-am/apps/vdot-csr/build/vdot-csr-extended-riscv64-xs.rvv.txt
+make: Leaving directory '/home/xpg/cie/xs-env/nexus-am/apps/vdot-csr'

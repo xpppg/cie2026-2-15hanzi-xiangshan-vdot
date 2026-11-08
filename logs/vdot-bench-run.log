@@ -1,0 +1,13 @@
+SET XS_PROJECT_ROOT: /home/xpg/cie/xs-env
+SET NOOP_HOME (XiangShan RTL Home): /home/xpg/cie/xs-env/XiangShan
+SET NEMU_HOME: /home/xpg/cie/xs-env/NEMU
+SET AM_HOME: /home/xpg/cie/xs-env/nexus-am
+SET DRAMSIM3_HOME: /home/xpg/cie/xs-env/DRAMsim3
+| 轮次 | Baseline 总周期 | vdot 总周期 |
+|---:|---:|---:|
+| 1 | 5617 | 2215 |
+| 2 | 5555 | 2170 |
+| 3 | 5569 | 2159 |
+| 中位数 | 5569 | 2170 |
+批量程序加速比：2.566×
+总周期减少：61.03%

@@ -1,0 +1,7 @@
+emu compiled at Nov  8 2026, 11:32:16
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is /home/xpg/cie/xs-env/nexus-am/apps/vdot-csr/build/vdot-csr-riscv64-xs.bin
+PASS: positive INT8 dot, VL=16, result=1496 (0x000005d8)
+PASS: negative INT8 dot, VL=16, result=-1496 (0xfffffa28)
+PASS: boundary values, LMUL=8, VL=128, 4 checks

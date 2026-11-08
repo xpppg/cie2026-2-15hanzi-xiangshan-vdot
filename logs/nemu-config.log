@@ -1,0 +1,3 @@
+make: Entering directory '/home/xpg/cie/xs-env/NEMU'
+Makefile:40: You have set CONFIG_FLASH_IMG_PATH option, but the specified path '""' does not exist!
+make: Leaving directory '/home/xpg/cie/xs-env/NEMU'

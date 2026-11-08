@@ -1,0 +1,114 @@
+{
+  "emu-build.log": {
+    "source": "XiangShan/build/vdot-csr/emu-build.log",
+    "sha256": "09056090ab6b2f361b3364aca80be0d3b1d2a82d847e68f699ebe4526d8543c9"
+  },
+  "module-test.log": {
+    "source": "XiangShan/build/vdot-csr/test-verilator-rerun.log",
+    "sha256": "86055bbbcb88b5d90eee62c86e5a48b28ae435b312697f237c3e6b40aedd4db1"
+  },
+  "vdot-csr.log": {
+    "source": "nexus-am/apps/vdot-csr/build/rtl-test.log",
+    "sha256": "479d4b199591f189f04e88dda144e783560b3dfd84b2d97ed556dfc2921c10cc"
+  },
+  "vdot-extended-partial.log": {
+    "source": "nexus-am/apps/vdot-csr/build/rtl-extended-partial.log",
+    "sha256": "479d4b199591f189f04e88dda144e783560b3dfd84b2d97ed556dfc2921c10cc"
+  },
+  "vdot-app-build.log": {
+    "source": "nexus-am/apps/vdot-csr/build/app-build.log",
+    "sha256": "8c33dd703d302e5fc67c49b215ea8d2cdac99dda311f7787429ae3b875b0df81"
+  },
+  "vdot-extended-app-build.log": {
+    "source": "nexus-am/apps/vdot-csr/build/extended-app-build.log",
+    "sha256": "a40a093ab28c7336b395040326948268f4bd838729c4ad9299e54cf1cd124bb1"
+  },
+  "vimac-regression.log": {
+    "source": "nexus-am/apps/vimac-vdot-regress/build/csr-rtl-test.log",
+    "sha256": "50078695fd75f4d74b89e9114ab0898cea0677fed2bbc5d5104935c095ebcb86"
+  },
+  "vimac-app-build.log": {
+    "source": "nexus-am/apps/vimac-vdot-regress/build/csr-app-build.log",
+    "sha256": "a88f41074c1406edca2ed7ff2abf65d6631a345b054aeee56a501e2fcf0d7bb5"
+  },
+  "vadd.log": {
+    "source": "nexus-am/apps/vadd/build/csr-rtl-test.log",
+    "sha256": "a03a54bf071b5cee67b2a2b4646f2d5c1e93b3998e56487fc6567a7b02493b10"
+  },
+  "vadd-app-build.log": {
+    "source": "nexus-am/apps/vadd/build/csr-app-build.log",
+    "sha256": "4488f4ab9e8463729367fc06cf1366d63d1f501857255d438bc374ace8a5c14c"
+  },
+  "nemu-config.log": {
+    "source": "vdot-docs/logs/nemu-config.log",
+    "sha256": "807fd0cda7709dc4bfd9071c5bd1597e2cfa0ecacd652d47c7ecfd1c3b522802"
+  },
+  "nemu-build.log": {
+    "source": "vdot-docs/logs/nemu-build.log",
+    "sha256": "3f1ee9d8d8334dfbf4e233b0e6be44c2d86f96e5aa8f913f2de3fd75e83e4044"
+  },
+  "vdot-basic-app-build.log": {
+    "source": "vdot-docs/logs/vdot-basic-app-build.log",
+    "sha256": "1efbaeb10aff2c41aab4f3e1baf16ab1dafe5519fa651775c95706aee5bf10f0"
+  },
+  "vdot-basic-difftest.log": {
+    "source": "vdot-docs/logs/vdot-basic-difftest.log",
+    "sha256": "c6c00a48db8aa8fd5ea39b91ee84b514f02006de2c36b918dd46877b98975633"
+  },
+  "vdot-bench-difftest.log": {
+    "source": "vdot-docs/logs/vdot-bench-difftest.log",
+    "sha256": "5f59c5982d6aa41fce6702a628dd94fadf7cec0d9402ea6cfe4845a44a9dbd0d"
+  },
+  "vdot-bench-app-build.log": {
+    "source": "vdot-docs/logs/vdot-bench-app-build.log",
+    "sha256": "4a8295ae72c22b351a3c8b4ce5e86cec89e311091a2882aa99c826dd344321eb"
+  },
+  "vdot-bench-run.log": {
+    "source": "vdot-docs/logs/vdot-bench-run.log",
+    "sha256": "fe9e4d1e225f4851832192de78158464309812bc337540662870545508f45529"
+  },
+  "vdot-bench-baseline5-difftest.log": {
+    "source": "vdot-docs/logs/vdot-bench-baseline5-difftest.log",
+    "sha256": "891883fcd12d091a2fa453abdae899353d6617642dc4df8abe1425203ad9528b"
+  },
+  "scale-m2-build.log": {
+    "source": "vdot-docs/logs/scale-m2-build.log",
+    "sha256": "e191f33861e136a30c3fb3612f09ea2998628d90063e960b9673ee509f8fb94b"
+  },
+  "scale-m2-difftest.log": {
+    "source": "vdot-docs/logs/scale-m2-difftest.log",
+    "sha256": "9611387371dd2e4509f060f0aab0e1e0e77a3590796e537f2951e3910d14cebf"
+  },
+  "scale-m2-results.log": {
+    "source": "vdot-docs/logs/scale-m2-results.log",
+    "sha256": "7885fd0a32b38876ca4b1c4586f02b498e7eeae99d5e769e471db08e23a1a5eb"
+  },
+  "scale-m4-build.log": {
+    "source": "vdot-docs/logs/scale-m4-build.log",
+    "sha256": "464a1a53d293fc712b00af6fe11cc20aa6ea4f3d81546cfb289fcea773da1c73"
+  },
+  "scale-m4-difftest.log": {
+    "source": "vdot-docs/logs/scale-m4-difftest.log",
+    "sha256": "120e3472e0c59114afbc1f5337ae40ef5010720c1a037f1ac2596a16805c7638"
+  },
+  "scale-m4-results.log": {
+    "source": "vdot-docs/logs/scale-m4-results.log",
+    "sha256": "e69bb94e2c60e238de8179c872871ec596a516a16b133ea726431f21d26a38a1"
+  },
+  "scale-m8-build.log": {
+    "source": "vdot-docs/logs/scale-m8-build.log",
+    "sha256": "f335c7fbc57880433aca30ed07f8fd8349b3f97a85c1c0284e113dcdcc91e1e8"
+  },
+  "scale-m8-difftest.log": {
+    "source": "vdot-docs/logs/scale-m8-difftest.log",
+    "sha256": "a0b20fa1dc963325c44844b7391ba5db44ee49da0137834fb16cf2497fc4f621"
+  },
+  "scale-m8-results.log": {
+    "source": "vdot-docs/logs/scale-m8-results.log",
+    "sha256": "62d33ea310f36ada947ecd1a38ccadb2bb1afbd46b50a37a514a9fc4df524f0d"
+  },
+  "scale-large-build.log": {
+    "source": "vdot-docs/logs/scale-large-build.log",
+    "sha256": "751be4a3a476a6bf3ac10dda2f72bbf4febae51a1b81f9dc331cfe3a3a198963"
+  }
+}
